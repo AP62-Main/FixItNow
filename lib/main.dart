@@ -7,8 +7,9 @@ import 'theme/app_theme.dart';
 // ─── IMPORTANT ───────────────────────────────────────────────────────────────
 // Replace these with your actual Supabase project URL and anon key.
 // Get them from: https://supabase.com/dashboard → your project → Settings → API
-const String _supabaseUrl = 'https://YOUR_PROJECT.supabase.co';
-const String _supabaseAnonKey = 'YOUR_ANON_KEY';
+const String _supabaseUrl = 'https://gjzlzhjxrjahxugvhjgw.supabase.co';
+const String _supabaseAnonKey =
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdqemx6aGp4cmphaHh1Z3Zoamd3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA5OTczNjQsImV4cCI6MjEwNjU3MzM2NH0.qVMRYNqxQ--So3nQHciz6V1dli4-g95oDFqbA2h7G_I';
 // ─────────────────────────────────────────────────────────────────────────────
 
 void main() async {
