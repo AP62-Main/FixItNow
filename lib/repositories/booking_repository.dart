@@ -1,78 +1,94 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/booking_model.dart';
 
+// ─── Supabase table name ──────────────────────────────────────────────────────
+// Make sure you create a table called 'bookings' in your Supabase project.
+// See README for the SQL schema.
+const _kBookingsTable = 'bookings';
+// ─────────────────────────────────────────────────────────────────────────────
+
 class BookingRepository {
-  final FirebaseFirestore? _firestore;
-  
-  // Use in-memory list if Firebase is not initialized (good for college demo before full setup)
+  // In-memory fallback for when Supabase is not configured (demo mode)
   final List<BookingModel> _mockBookings = [];
 
-  BookingRepository() : _firestore = _isFirebaseInitialized() ? FirebaseFirestore.instance : null;
-
-  static bool _isFirebaseInitialized() {
+  static bool _isSupabaseInitialized() {
     try {
-      return Firebase.apps.isNotEmpty;
-    } catch (e) {
+      Supabase.instance.client; // throws if not initialized
+      return true;
+    } catch (_) {
       return false;
     }
   }
 
+  SupabaseClient? get _client =>
+      _isSupabaseInitialized() ? Supabase.instance.client : null;
+
+  // ── Create ──────────────────────────────────────────────────────────────────
   Future<void> createBooking(BookingModel booking) async {
-    if (_firestore != null) {
+    final client = _client;
+    if (client != null) {
       try {
-        await _firestore.collection('bookings').doc(booking.id).set(booking.toMap());
+        await client.from(_kBookingsTable).insert(booking.toMap());
+        return;
       } catch (e) {
-        debugPrint('Error saving to Firestore: $e');
-        _mockBookings.add(booking); // Fallback
+        debugPrint('Error saving to Supabase: $e. Falling back to in-memory.');
       }
-    } else {
-      _mockBookings.add(booking);
-      // Simulate network delay
-      await Future.delayed(const Duration(seconds: 1));
     }
+    // Demo / fallback mode
+    _mockBookings.add(booking);
+    await Future.delayed(const Duration(seconds: 1));
   }
 
+  // ── Read: bookings for a user ───────────────────────────────────────────────
   Future<List<BookingModel>> getUserBookings(String userId) async {
-    if (_firestore != null) {
+    final client = _client;
+    if (client != null) {
       try {
-        final snapshot = await _firestore
-            .collection('bookings')
-            .where('userId', isEqualTo: userId)
-            .orderBy('createdAt', descending: true)
-            .get();
-            
-        return snapshot.docs.map((doc) => BookingModel.fromMap(doc.data(), doc.id)).toList();
+        final response = await client
+            .from(_kBookingsTable)
+            .select()
+            .eq('userId', userId)
+            .order('createdAt', ascending: false);
+
+        return (response as List)
+            .map((row) => BookingModel.fromMap(row as Map<String, dynamic>))
+            .toList();
       } catch (e) {
-        debugPrint('Error reading from Firestore: $e');
+        debugPrint('Error reading from Supabase: $e');
       }
     }
-    
-    // Fallback or mock mode
+    // Fallback / demo
     await Future.delayed(const Duration(milliseconds: 500));
-    return _mockBookings.where((b) => b.userId == userId).toList()
+    return _mockBookings
+        .where((b) => b.userId == userId)
+        .toList()
       ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
   }
 
+  // ── Read: bookings for a provider ──────────────────────────────────────────
   Future<List<BookingModel>> getProviderBookings(String providerId) async {
-    if (_firestore != null) {
+    final client = _client;
+    if (client != null) {
       try {
-        final snapshot = await _firestore
-            .collection('bookings')
-            .where('providerId', isEqualTo: providerId)
-            .orderBy('createdAt', descending: true)
-            .get();
-            
-        return snapshot.docs.map((doc) => BookingModel.fromMap(doc.data(), doc.id)).toList();
+        final response = await client
+            .from(_kBookingsTable)
+            .select()
+            .eq('providerId', providerId)
+            .order('createdAt', ascending: false);
+
+        return (response as List)
+            .map((row) => BookingModel.fromMap(row as Map<String, dynamic>))
+            .toList();
       } catch (e) {
-        debugPrint('Error reading from Firestore: $e');
+        debugPrint('Error reading from Supabase: $e');
       }
     }
-    
-    // Fallback or mock mode
+    // Fallback / demo
     await Future.delayed(const Duration(milliseconds: 500));
-    return _mockBookings.where((b) => b.providerId == providerId).toList()
+    return _mockBookings
+        .where((b) => b.providerId == providerId)
+        .toList()
       ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
   }
 }

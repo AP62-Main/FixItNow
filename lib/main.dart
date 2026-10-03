@@ -1,20 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter/foundation.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'screens/main_layout.dart';
 import 'theme/app_theme.dart';
 
+// ─── IMPORTANT ───────────────────────────────────────────────────────────────
+// Replace these with your actual Supabase project URL and anon key.
+// Get them from: https://supabase.com/dashboard → your project → Settings → API
+const String _supabaseUrl = 'https://YOUR_PROJECT.supabase.co';
+const String _supabaseAnonKey = 'YOUR_ANON_KEY';
+// ─────────────────────────────────────────────────────────────────────────────
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
-  // On mobile, try to initialize Firebase if configured; on Web skip to avoid missing options assertion
-  if (!kIsWeb) {
-    try {
-      await Firebase.initializeApp();
-    } catch (e) {
-      debugPrint('Firebase not configured: $e. Running in local/demo mode.');
-    }
+
+  try {
+    await Supabase.initialize(
+      url: _supabaseUrl,
+      publishableKey: _supabaseAnonKey,
+    );
+    debugPrint('Supabase initialized successfully.');
+  } catch (e) {
+    debugPrint('Supabase not configured: $e. Running in local/demo mode.');
   }
 
   runApp(
@@ -35,7 +42,6 @@ class FixItNowApp extends StatelessWidget {
       theme: AppTheme.darkTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.dark,
-      // Load MainLayout directly so the user instantly lands on the interactive home page
       home: const MainLayout(),
     );
   }

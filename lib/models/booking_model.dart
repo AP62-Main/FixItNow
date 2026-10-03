@@ -50,9 +50,9 @@ class BookingModel {
     };
   }
 
-  factory BookingModel.fromMap(Map<String, dynamic> map, String docId) {
+  factory BookingModel.fromMap(Map<String, dynamic> map) {
     return BookingModel(
-      id: docId,
+      id: map['id'] ?? '',
       userId: map['userId'] ?? '',
       providerId: map['providerId'] ?? '',
       providerName: map['providerName'] ?? '',
