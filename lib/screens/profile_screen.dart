@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
+import 'admin_dashboard_screen.dart';
 import 'provider_dashboard_screen.dart';
+import 'splash_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -125,6 +127,42 @@ class ProfileScreen extends StatelessWidget {
 
             const SizedBox(height: 24),
 
+            // ── Admin Dashboard ──
+            Container(
+              decoration: BoxDecoration(
+                color: AppTheme.cardColor,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppTheme.borderColor),
+              ),
+              child: ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0x1F38BDF8),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.admin_panel_settings_rounded, color: AppTheme.aiCyan, size: 20),
+                ),
+                title: const Text(
+                  'Admin Control Center',
+                  style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.textPrimary, fontSize: 15),
+                ),
+                subtitle: const Text(
+                  'Manage providers, bookings & analytics',
+                  style: TextStyle(color: AppTheme.textDim, fontSize: 12),
+                ),
+                trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: AppTheme.textSecondary),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const AdminDashboardScreen()),
+                  );
+                },
+              ),
+            ),
+
+            const SizedBox(height: 12),
+
             // Demo Special: Provider Dashboard Switcher
             Container(
               decoration: BoxDecoration(
@@ -179,7 +217,7 @@ class ProfileScreen extends StatelessWidget {
 
             const SizedBox(height: 24),
 
-            // Sign out
+            // Sign out — fixed!
             Container(
               decoration: BoxDecoration(
                 color: AppTheme.cardColor,
@@ -189,7 +227,43 @@ class ProfileScreen extends StatelessWidget {
               child: ListTile(
                 leading: const Icon(Icons.logout_rounded, color: AppTheme.error, size: 20),
                 title: const Text('Sign Out', style: TextStyle(color: AppTheme.error, fontWeight: FontWeight.w600)),
-                onTap: () {},
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      backgroundColor: AppTheme.cardColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        side: const BorderSide(color: AppTheme.borderColor),
+                      ),
+                      title: const Text(
+                        'Sign Out',
+                        style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.w700),
+                      ),
+                      content: const Text(
+                        'Are you sure you want to sign out of FixItNow?',
+                        style: TextStyle(color: AppTheme.textSecondary, fontSize: 14),
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(ctx).pop(),
+                          child: const Text('Cancel', style: TextStyle(color: AppTheme.textSecondary)),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(ctx).pop();
+                            // Navigate to splash and clear the entire navigation stack
+                            Navigator.of(context).pushAndRemoveUntil(
+                              MaterialPageRoute(builder: (_) => const SplashScreen()),
+                              (route) => false,
+                            );
+                          },
+                          child: const Text('Sign Out', style: TextStyle(color: AppTheme.error, fontWeight: FontWeight.w600)),
+                        ),
+                      ],
+                    ),
+                  );
+                },
               ),
             ),
 
